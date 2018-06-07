@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 # Create your models here.
+
 class User(AbstractUser, BaseModel):
     """用户模型类"""
 
