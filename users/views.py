@@ -1,11 +1,12 @@
 # _*_ coding:utf-8 _*_
 from django.shortcuts import render, redirect
 from django.views.generic import View
-from users.models import User
+from users.models import User, Address
 import re
 from hashlib import sha1
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
+from utils.util import LoginRequiredMixin
 
 import logging
 
@@ -109,3 +110,66 @@ class LogOutView(View):
         """退出登录"""
         logout(requeset)
         return redirect('/')
+
+
+class UserInfoView(LoginRequiredMixin, View):
+    """用户个人中心-基本信息"""
+
+    def get(self, request):
+        """显示"""
+        # Django会给request对象添加一个属性request.user
+        # 如果用户未登录->user是AnonymousUser类的一个实例对象
+        # 如果用户登录->user是User类的一个实例对象
+        # request.user.is_authenticated()
+
+        # 获取用户的个人信息
+        user = request.user
+        addr = Address.objects.get_default_address(user)
+
+        context = {'page': 'user', 'address': addr}
+
+        return render(request, 'user/user_center_info.html', context)
+
+
+class AddressView(LoginRequiredMixin, View):
+    """用户个人中-地址信息"""
+
+    def get(self, request):
+        # 获取当前登录用户
+        user = request.user
+        # 查询是该用户关联的地址
+        address_li = user.address_set.all()
+        print(address_li)
+        return render(request, 'user/user_center_site.html', {'page': 'address', 'address_li': address_li})
+
+    def post(self, request):
+        """添加收货地址"""
+        # 获取上传数据
+        receiver = request.POST.get('receiver')
+        addr = request.POST.get('addr')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+
+        # 检验数据是否完整
+        if not all([receiver, addr, phone]):
+            return render(request, 'user/user_center_site.html', {'errmsg': '数据不完整'})
+        # 校验手机是否正确
+        if not re.match(r'^1[3|4|5|7|8][0-9]{9}$', phone):
+            return render(request, 'user/user_center_site.html', {'errmsg': '手机号不正确'})
+
+        user = request.user
+        # 查询是否存在默认地址
+        address = Address.objects.get_default_address(user)
+        if address:
+            is_default = False
+        else:
+            is_default = True
+
+        # 添加收货地址
+        Address.objects.create(user=user,
+                               receiver=receiver,
+                               addr=addr,
+                               phone=phone,
+                               zip_code=zip_code,
+                               is_default=is_default)
+        return redirect(reverse('user:address'))

@@ -25,7 +25,7 @@ class AddressManager(models.Manager):
         try:
             '''获取用户默认收货地址'''
             # self.model:获取self对象所在的模型类
-            addr = self.get(user=user, is_Default=True)
+            addr = self.get(user=user, is_default=True)
         except self.model.DoesNotExist:
             # 默认不存在收货地址
             addr = None
@@ -49,3 +49,6 @@ class Address(BaseModel):
         db_table = 'df_address'
         verbose_name = '地址'
         verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return '收件人:%s-地址:%s-电话:%s-默认地址:%s' % (self.receiver, self.addr, self.phone, self.is_default)
