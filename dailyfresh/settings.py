@@ -1,3 +1,4 @@
+# _*_ coding:utf-8 _*_
 """
 Django settings for dailyfresh project.
 
@@ -24,7 +25,7 @@ SECRET_KEY = '3ret(mgs-qn8n2mg45jp_e88fi=tvsb5hyo44%6n%b!iq+g8wd'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -35,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tinymce',  # 富文本编辑器
     'users',
     'goods',
 )
@@ -105,6 +107,18 @@ AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# 开发阶段文件上传目录
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_URL = '/media/'
+
+
+# 富文本编辑器配置
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'width': 600,
+    'height': 400,
+}
 
 # Django的缓存配置
 CACHES = {
