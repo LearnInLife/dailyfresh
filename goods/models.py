@@ -145,3 +145,9 @@ class IndexPromotionBanner(BaseModel):
         db_table = 'df_index_promotion'
         verbose_name = "主页促销活动"
         verbose_name_plural = verbose_name
+
+    def image_show(self):
+        return '<img src="/media/%s" width=200px height=100px/>' % self.image
+
+    image_show.allow_tags = True
+    image_show.short_description = '促销图片'

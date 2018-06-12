@@ -2,11 +2,13 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from users.models import User, Address
+from goods.models import GoodsSKU
 import re
 from hashlib import sha1
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from utils.util import LoginRequiredMixin
+from django_redis import get_redis_connection
 
 import logging
 
@@ -126,9 +128,22 @@ class UserInfoView(LoginRequiredMixin, View):
         user = request.user
         addr = Address.objects.get_default_address(user)
 
-        context = {'page': 'user', 'address': addr}
+        # 获取用户的历史浏览记录
+        conn = get_redis_connection('default')
 
-        return render(request, 'user/user_center_info.html', context)
+        # 根据用户id生成的存储key值
+        history_key = 'history_%d' % user.id
+        # 得到用户最近浏览的10个商品id
+        sku_ids = conn.lrange(history_key, 0, 9)
+
+        goods_li = []
+        for id in sku_ids:
+            good = GoodsSKU.objects.get(id=id)
+            goods_li.append(good)
+
+        content = {'page': 'user', 'address': addr, 'goods_li': goods_li}
+
+        return render(request, 'user/user_center_info.html', content)
 
 
 class AddressView(LoginRequiredMixin, View):
