@@ -39,6 +39,8 @@ INSTALLED_APPS = (
     'tinymce',  # 富文本编辑器
     'users',
     'goods',
+    'cart',
+    'order',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
 
@@ -24,5 +23,7 @@ urlpatterns = [
     url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     url(r'tinymce/', include('tinymce.urls')),  # 富文本编辑器
     url(r'^user/', include('users.urls', namespace='user')),  # user module
-    url(r'^', include('goods.urls', namespace='goods'))
+    url(r'^', include('goods.urls', namespace='goods')),
+    url(r'^cart/', include('cart.urls', namespace='cart')),
+
 ]

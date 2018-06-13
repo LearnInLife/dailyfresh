@@ -42,10 +42,15 @@ class IndexView(View):
 
         # 获取登录对象
         user = request.user
-        print(user.is_authenticated())
+        cart_count = 0
+        if user.is_authenticated():
+            conn = get_redis_connection('default')
+            cart_key = 'cart_%d'%user.id
+
+            cart_count = conn.hlen(cart_key)
 
         # 传入购物车数量
-        content.update(cart_count=10)
+        content.update(cart_count=cart_count)
 
         return render(request, 'goods/index.html', content)
 
@@ -77,6 +82,10 @@ class DetailView(View):
         cart_count = 0
         if user.is_authenticated():
             # 用户购物车数量
+            conn = get_redis_connection('default')
+            cart_key = 'cart_%d' % user.id
+
+            cart_count = conn.hlen(cart_key)
 
             # 添加用户历史浏览记录
             conn = get_redis_connection('default')

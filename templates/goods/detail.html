@@ -40,6 +40,7 @@
 			<div class="total">总价：<em>16.80元</em></div>
 			<div class="operate_btn">
 				<a href="javascript:;" class="buy_btn">立即购买</a>
+				{% csrf_token %}
 				<a href="javascript:;" sku_id="{{ sku.id }}" class="add_cart" id="add_cart">加入购物车</a>
 			</div>
 		</div>
@@ -160,7 +161,7 @@
             var params = {'sku_id':sku_id,'count':count,'csrf':csrf};
 
              // 发起ajax post请求，访问/cart/add, 传递参数:sku_id count
-            $.post('cart/add',params,function (data) {
+            $.post('/cart/add',params,function (data) {
 
                 if(data.res == 5){
                     // 添加成功
