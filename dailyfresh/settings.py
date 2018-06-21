@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'goods',
     'cart',
     'order',
+    'users.templatetags.filters'#注册自定义过滤器
 )
 
 MIDDLEWARE_CLASSES = (

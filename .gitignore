@@ -104,3 +104,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#秘钥
+order/alipay_public_key.pem
+order/rsa_private_key.pem

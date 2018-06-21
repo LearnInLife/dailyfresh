@@ -1,3 +1,8 @@
+# _*_ coding:utf-8 _*_
 from django.contrib import admin
+from order.models import *
 
 # Register your models here.
+
+admin.site.register(OrderInfo)
+admin.site.register(OrderGoods)

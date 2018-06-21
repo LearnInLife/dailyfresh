@@ -5,7 +5,7 @@
 {% block body %}
 
 	<div class="total_count">全部商品<em>{{ total_count }}</em>件</div>
-    <form method="post" action="#">
+    <form method="post" action="{% url 'order:create' %}">
 
 	<ul class="cart_list_th clearfix">
 		<li class="col01">商品名称</li>
@@ -16,7 +16,7 @@
 		<li class="col06">操作</li>
 	</ul>
     {% for sku in skus %}
-	    <ul class="cart_list_td clearfix">
+	<ul class="cart_list_td clearfix">
 		<li class="col01"><input type="checkbox" name="sku_ids" value="{{ sku.id }}" checked></li>
 		<li class="col02"><img src="{{ sku.image.url }}"></li>
 		<li class="col03">{{ sku.name }}<br><em>{{ sku.price }}元/{{ sku.unite }}g</em></li>
@@ -54,7 +54,7 @@
             buy_count = 0;
         // 获取所有被选中的商品的checkbox
         // 获取所有被选中的商品所在的ul元素
-        $('.cart_list_td').find(':checked').parents('ul').each(function () {
+        $('.cart_list_td').each(function () {
             // 获取商品的数目和购买状态
             var buy = $(this).find('.col01 :checkbox').is(':checked'),
                 count = $(this).find('.num_show').val();
@@ -73,7 +73,7 @@
         // 设置被选中的商品的总件数和总价格以及总件数
         $('.settlements .col03 em').html(buy_amount.toFixed(2) + '元');
         $('.settlements .col03 b').html(buy_count);
-        $('.total_count em').html(buy_count);
+        $('.total_count em').html(total_count);
     };
 
     // 商品的全选和全不选

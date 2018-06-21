@@ -1,5 +1,7 @@
 {% extends 'base/base_detail_list.html' %}
 {% block title %}天天生鲜-商品列表{% endblock title %}
+{% load staticfiles %}
+
 {% block main_content %}
 	<div class="breadcrumb">
 		<a href="#">全部分类</a>
@@ -37,7 +39,7 @@
                         <div class="operate">
                             <span class="prize">￥{{ sku.price }}</span>
                             <span class="unit">{{ sku.price }}/{{ sku.unite }}</span>
-                            <a href="#" class="add_goods" title="加入购物车"></a>
+                            <a href="javascript:;" class="add_goods" title="加入购物车" sku_id="{{ sku.id }}"></a>
                         </div>
 				</li>
                 {% endfor %}
@@ -63,3 +65,45 @@
 	</div>
 
 {% endblock main_content %}
+
+{% block bottom %}
+	<div class="add_jump"></div>
+{% endblock bottom %}
+
+{% block bottomfiles %}
+	<script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js'%}"></script>
+	<script type="text/javascript">
+		//添加购物车
+		$('.add_goods').click(function () {
+			var sku_id = $(this).attr('sku_id'),
+				count = 1;
+			var params = {'sku_id':sku_id,'count':count}
+
+			var add_x = $(this).offset().left;
+			var add_y = $(this).offset().top;
+
+			var to_x = $('#show_count').offset().left;
+			var to_y = $('#show_count').offset().top;
+
+			$.post('/cart/add',params,function (data) {
+				if(data.res == 5){
+                    // 添加成功
+					$(".add_jump").css({'left':add_x+80,'top':add_y+10,'display':'block'})
+                    $(".add_jump").stop().animate({
+                        'left': to_x+7,
+                        'top': to_y+7},
+                        "fast", function() {
+                            $(".add_jump").fadeOut('fast',function(){
+                                // 重新设置用户购物车中商品的条目数
+                                $('#show_count').html(data.total_count);
+                            });
+			        });
+                } else {
+                    // 添加失败
+                    alert(data.errmsg)
+                }
+            })
+        })
+
+	</script>
+{% endblock bottomfiles %}

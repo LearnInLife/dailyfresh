@@ -3,12 +3,14 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from users.models import User, Address
 from goods.models import GoodsSKU
+from order.models import OrderInfo, OrderGoods
 import re
 from hashlib import sha1
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from utils.util import LoginRequiredMixin
 from django_redis import get_redis_connection
+from django.core.paginator import Paginator
 
 import logging
 
@@ -188,3 +190,65 @@ class AddressView(LoginRequiredMixin, View):
                                zip_code=zip_code,
                                is_default=is_default)
         return redirect(reverse('user:address'))
+
+
+class UserCenterOrderView(LoginRequiredMixin, View):
+    """用户中心订单类"""
+
+    def get(self, request, page):
+
+        user = request.user
+        orders = OrderInfo.objects.filter(user=user).order_by('-create_time')
+
+        for order in orders:
+            # 根据订单信息查询订单商品信息
+            order_skus = OrderGoods.objects.filter(order_id=order.order_id)
+
+            # 计算订单商品中的商品小计
+            for order_sku in order_skus:
+                amount = order_sku.count * order_sku.price
+                order_sku.amount = amount
+
+            # 保存订单状态的标志
+            order.status_name = OrderInfo.ORDER_STATUS[order.order_status]
+            # 保存订单商品信息
+            order.order_skus = order_skus
+
+        # 分页
+        paginator = Paginator(orders, 3)
+
+        # 获取第page页的内容
+        try:
+            page = int(page)
+        except Exception:
+            page = 1
+
+        if page > paginator.num_pages:
+            page = 1
+
+        order_page = paginator.page(page)
+
+        #  进行页码的控制，页面上最多显示5个页码
+        # 1.总页数小于5页，页面上显示所有页码
+        # 2.如果当前页是前3页，显示1-5页
+        # 3.如果当前页是后3页，显示后5页
+        # 4.其他情况，显示当前页的前2页，当前页，当前页的后2页
+
+        # 获取分页总数
+        num_pages = paginator.num_pages
+        if num_pages < 5:
+            pages = range(1, num_pages + 1)
+        elif page <= 3:
+            pages = range(1, 6)
+        elif num_pages - page >= 2:
+            pages = range(num_pages - 4, num_pages + 1)
+        else:
+            pages = range(page - 2, page + 3)
+
+        content = {
+            'pages': pages,
+            'order_page': order_page,
+            'page': 'order'
+        }
+
+        return render(request, 'user/user_center_order.html', content)
