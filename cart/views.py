@@ -8,9 +8,10 @@ from django_redis import get_redis_connection
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from utils.util import LoginRequiredMixin
 
 
-class CartInfoView(View):
+class CartInfoView(LoginRequiredMixin,View):
     """购物车页面"""
 
     def get(self, request):

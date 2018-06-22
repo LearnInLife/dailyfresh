@@ -2,8 +2,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from goods.models import *
-from django.core.urlresolvers import reverse
-from django.core.cache import cache
+from order.models import *
 from django_redis import get_redis_connection
 from django.core.paginator import Paginator
 
@@ -45,7 +44,7 @@ class IndexView(View):
         cart_count = 0
         if user.is_authenticated():
             conn = get_redis_connection('default')
-            cart_key = 'cart_%d'%user.id
+            cart_key = 'cart_%d' % user.id
 
             cart_count = conn.hlen(cart_key)
 
@@ -62,7 +61,7 @@ class DetailView(View):
         # 通过id 查询商品id
         try:
             sku = GoodsSKU.objects.get(id=goods_id)
-        except:
+        except Exception:
             # 商品不存在，返回首页
             return redirect('/')
 
@@ -70,7 +69,7 @@ class DetailView(View):
         types = GoodsType.objects.all()
 
         # 获取商品的评论信息
-        sku_order_comment = []
+        sku_order_comment = OrderGoods.objects.filter(sku=sku).exclude(comment='')
 
         # 获取新品信息，添加时间最晚的两个为新品
         new_skus = GoodsSKU.objects.filter(type=sku.type).order_by('-create_time')[:2]

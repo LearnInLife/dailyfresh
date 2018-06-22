@@ -12,8 +12,6 @@ from utils.util import LoginRequiredMixin
 from django_redis import get_redis_connection
 from django.core.paginator import Paginator
 
-import logging
-
 
 # Create your views here.
 

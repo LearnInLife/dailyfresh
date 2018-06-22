@@ -39,7 +39,7 @@
                 </div>
 			<div class="total">总价：<em>16.80元</em></div>
 			<div class="operate_btn">
-				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" sku_id="{{ sku.id }}" class="buy_btn">立即购买</a>
 				<a href="javascript:;" sku_id="{{ sku.id }}" class="add_cart" id="add_cart">加入购物车</a>
 			</div>
 		</div>
@@ -63,17 +63,22 @@
 
 		<div class="r_wrap fr clearfix">
 			<ul class="detail_tab clearfix">
-				<li class="active">商品介绍</li>
-				<li>评论</li>
+				<li id='tag_detail' class="active">商品介绍</li>
+				<li id="tag_comment">评论</li>
 			</ul>
 
-			<div class="tab_content">
+			<div class="tab_content" id="tab_comment" style="display: none">
 				<dl>
-					<dt>商品详情：</dt>
-					<dd>{{ sku_order_comment }} </dd>
+                    {% for order in sku_order_comment %}
+					<dt>评论时间：{{ order.update_time }}&nbsp;&nbsp;用户名:{{ order.order.user.username }}</dt>
+                    <dd>评论内容:{{ order.comment }}</dd>
+                    {% endfor %}
 				</dl>
 			</div>
 
+			<div class="tab_content" id="tab_detail">
+				<div>{{ sku.desc }}</div>
+			</div>
 		</div>
 	</div>
 {% endblock main_content %}
@@ -85,6 +90,19 @@
 {% block bottomfiles %}
 	<script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js'%}"></script>
 	<script type="text/javascript">
+		$('#tag_detail').click(function () {
+            $('#tag_comment').removeClass('active');
+            $(this).addClass('active');
+            $('#tab_detail').show();
+            $('#tab_comment').hide();
+        });
+
+        $('#tag_comment').click(function () {
+            $('#tag_detail').removeClass('active');
+            $(this).addClass('active');
+            $('#tab_detail').hide();
+            $('#tab_comment').show();
+        })
         // 预解析
         update_goods_amount();
         // 计算商品的总价格
@@ -181,6 +199,11 @@
                 }
             })
         })
-
+		$('.buy_btn').click(function () {
+			var sku_id = $(this).attr('sku_id'),
+                count = $('.num_show').val(),
+				csrf = $('input[name="csrfmiddlewaretoken"]').val();
+			window.location.href = '/order/?sku_id='+sku_id+'&count='+count
+        })
 	</script>
 {% endblock bottomfiles %}
